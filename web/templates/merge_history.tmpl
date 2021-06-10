@@ -1,0 +1,65 @@
+{{ define "breadcrumb-merge_history" }}
+    <a href="/merge/history">Merge History</a>
+    {{ if .Owner }}
+        &gt; <a href="/merge/history/{{ .Owner }}">{{ .Owner }}</a>
+        {{ if .Repository }}
+            &gt; <a href="/merge/history/{{ .Owner }}/{{ .Repository }}">{{ .Repository }}</a>
+            {{ if .Branch }}
+                &gt; <a href="/merge/history/{{ .Owner }}/{{ .Repository }}/{{ .Branch }}">{{ .Branch }}</a>
+            {{ end }}
+        {{ end }}
+    {{ end }}
+{{ end }}
+
+<section class="dataTable-container">
+    <table id="records" class="display cell-border">
+        <thead>
+            <tr>
+                <th class="time">Time</th>
+                <th class="source">Source</th>
+                <th class="action">Action</th>
+                <th class="pr">Pull Requests</th>
+                <th class="details">Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range $record := .Records }}
+            <tr>
+                <td data-order='{{ $record.Time.Format "2006-01-02 15:04:05" }}'>
+                    {{- if (vdate $record.Time).IsToday -}}
+                        {{ $record.Time.Format "15:04:05" }}
+                    {{- else -}}
+                        {{ $record.Time.Format "2006-01-02 15:04:05" }}
+                    {{- end -}}
+                </td>
+                <td>
+                    <a href="/merge/history/{{ $record.Owner }}/{{ $record.Repository }}">{{ $record.Owner }}/{{ $record.Repository }}</a>
+                    <span>
+                        <a href="/merge/history/{{ $record.Owner }}/{{ $record.Repository }}/{{ $record.Branch }}">
+                            {{ $record.Branch }}
+                        </a>
+                    </span>
+                </td>
+                <td class='merge-action-{{ lower $record.Action | replace "_" "-" }}'>
+                    {{ $record.Action }}
+                </td>
+                <td>
+                    <ul>
+                    {{ range $pr := $record.PRs }}
+                    <li title="{{ $pr.Title }}">
+                        <span>{{ $pr.Number }}</span>
+                        <span>({{ $pr.Author }})</span>
+                    </li>
+                    {{ end }}
+                    </ul>
+                </td>
+                <td>
+                    <a href="/merge/history{{with .Owner}}/{{.}}{{end}}{{with .Repository}}/{{.}}{{end}}{{with .Branch}}/{{.}}{{end}}.yaml" title="Open YAML definition">
+                        <clr-icon shape="file" size="16" class="icon"></clr-icon> YAML
+                    </a>
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</section>

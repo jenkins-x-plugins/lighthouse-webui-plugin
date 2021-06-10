@@ -1,0 +1,114 @@
+{{ define "breadcrumb-merge_status" }}
+    <a href="/merge/status">Merge Status</a>
+    {{ if .Owner }}
+        &gt; <a href="/merge/status/{{ .Owner }}">{{ .Owner }}</a>
+        {{ if .Repository }}
+            &gt; <a href="/merge/status/{{ .Owner }}/{{ .Repository }}">{{ .Repository }}</a>
+            {{ if .Branch }}
+                &gt; <a href="/merge/status/{{ .Owner }}/{{ .Repository }}/{{ .Branch }}">{{ .Branch }}</a>
+            {{ end }}
+        {{ end }}
+    {{ end }}
+{{ end }}
+
+<section class="dataTable-container">
+    <table id="pools" class="display cell-border">
+        <thead>
+            <tr>
+                <th class="updatedAt">Updated At</th>
+                <th class="source">Source</th>
+                <th class="action">Action</th>
+                <th class="success">Success</th>
+                <th class="pending">Pending</th>
+                <th class="missing">Missing</th>
+                <th class="details">Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range $pool := .Pools }}
+            <tr>
+                <td data-order='{{ $pool.UpdatedAt.Format "2006-01-02 15:04:05" }}'>
+                    {{- if (vdate $pool.UpdatedAt).IsToday -}}
+                        {{ $pool.UpdatedAt.Format "15:04:05" }}
+                    {{- else -}}
+                        {{ $pool.UpdatedAt.Format "2006-01-02 15:04:05" }}
+                    {{- end -}}
+                </td>
+                <td>
+                    <a href="/merge/status/{{ $pool.Owner }}/{{ $pool.Repository }}">{{ $pool.Owner }}/{{ $pool.Repository }}</a>
+                    <span>
+                        <a href="/merge/status/{{ $pool.Owner }}/{{ $pool.Repository }}/{{ $pool.Branch }}">
+                            {{ $pool.Branch }}
+                        </a>
+                    </span>
+                </td>
+                <td class='merge-action-{{ lower $pool.Action | replace "_" "-" }}'>
+                    {{ $pool.Action }}
+                </td>
+                <td>
+                    <ul>
+                    {{ range $pr := $pool.SuccessPRs }}
+                    <li title="{{ $pr.Title }}">
+                        <span>
+                            {{ if eq $pr.Mergeable "MERGEABLE" }}
+                            <clr-icon shape="success-standard" size="16" class="icon merge-state-{{ lower $pr.Mergeable }}" title="{{ $pr.Mergeable }}"></clr-icon>
+                            {{ else if eq $pr.Mergeable "CONFLICTING" }}
+                            <clr-icon shape="error-standard" size="16" class="icon merge-state-{{ lower $pr.Mergeable }}" title="{{ $pr.Mergeable }}"></clr-icon>
+                            {{ else }}
+                            <clr-icon shape="unknown-status" size="16" class="icon" title="{{ $pr.Mergeable }}"></clr-icon>
+                            {{ end }}
+                        </span>
+                        <span>{{ $pr.Number }}</span>
+                        <span>({{ $pr.Author }})</span>
+                    </li>
+                    {{ end }}
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                    {{ range $pr := $pool.PendingPRs }}
+                    <li title="{{ $pr.Title }}">
+                        <span>
+                            {{ if eq $pr.Mergeable "MERGEABLE" }}
+                            <clr-icon shape="success-standard" size="16" class="icon merge-state-{{ lower $pr.Mergeable }}" title="{{ $pr.Mergeable }}"></clr-icon>
+                            {{ else if eq $pr.Mergeable "CONFLICTING" }}
+                            <clr-icon shape="error-standard" size="16" class="icon merge-state-{{ lower $pr.Mergeable }}" title="{{ $pr.Mergeable }}"></clr-icon>
+                            {{ else }}
+                            <clr-icon shape="unknown-status" size="16" class="icon" title="{{ $pr.Mergeable }}"></clr-icon>
+                            {{ end }}
+                        </span>
+                        <span>{{ $pr.Number }}</span>
+                        <span>({{ $pr.Author }})</span>
+                    </li>
+                    {{ end }}
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                    {{ range $pr := $pool.MissingPRs }}
+                    <li title="{{ $pr.Title }}">
+                        <span>
+                            {{ if eq $pr.Mergeable "MERGEABLE" }}
+                            <clr-icon shape="success-standard" size="16" class="icon merge-state-{{ lower $pr.Mergeable }}" title="{{ $pr.Mergeable }}"></clr-icon>
+                            {{ else if eq $pr.Mergeable "CONFLICTING" }}
+                            <clr-icon shape="error-standard" size="16" class="icon merge-state-{{ lower $pr.Mergeable }}" title="{{ $pr.Mergeable }}"></clr-icon>
+                            {{ else }}
+                            <clr-icon shape="unknown-status" size="16" class="icon" title="{{ $pr.Mergeable }}"></clr-icon>
+                            {{ end }}
+                        </span>
+                        <span>{{ $pr.Number }}</span>
+                        <span>({{ $pr.Author }})</span>
+                    </li>
+                    {{ end }}
+                    </ul>
+                </td>
+                <td>
+                    <a href="/merge/status{{with .Owner}}/{{.}}{{end}}{{with .Repository}}/{{.}}{{end}}{{with .Branch}}/{{.}}{{end}}.yaml" title="Open YAML definition">
+                        <clr-icon shape="file" size="16" class="icon"></clr-icon> YAML
+                    </a>
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</section>

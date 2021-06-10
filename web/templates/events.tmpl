@@ -1,0 +1,149 @@
+{{ define "breadcrumb-events" }}
+    <a href="/events">Events</a>
+    {{ if .Owner }}
+        &gt; <a href="/events/{{ .Owner }}">{{ .Owner }}</a>
+        {{ if .Repository }}
+            &gt; <a href="/events/{{ .Owner }}/{{ .Repository }}">{{ .Repository }}</a>
+            {{ if .Branch }}
+                &gt; <a href="/events/{{ .Owner }}/{{ .Repository }}/{{ .Branch }}">{{ .Branch }}</a>
+            {{ end }}
+        {{ end }}
+    {{ end }}
+    {{ if .Query }}
+        &gt; <a href="?q={{ .Query }}">{{ .Query }}</a>
+    {{ end }}
+{{ end }}
+
+<section class="dataTable-container">
+    <table id="events" class="display cell-border">
+        <thead>
+            <tr>
+                <th class="time">Time</th>
+                <th class="event">Event</th>
+                <th class="sender">Sender</th>
+                <th class="source">Source</th>
+                <th class="job">Job</th>
+                <th class="build">Build</th>
+                <th class="state">State</th>
+                <th class="start">Start</th>
+                <th class="end">End</th>
+                <th class="duration">Duration</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range $event := .Events }}
+            {{ $jobs := (loadJobsForEvent $event.GUID) }}
+            {{ if not $jobs }}
+            <tr>
+                <td data-order='{{ $event.Time.Format "2006-01-02 15:04:05" }}'>
+                    {{- if (vdate $event.Time).IsToday -}}
+                        {{ $event.Time.Format "15:04:05" }}
+                    {{- else -}}
+                        {{ $event.Time.Format "2006-01-02 15:04:05" }}
+                    {{- end -}}
+                </td>
+                <td title="{{ $event.Details }}">
+                    <span>
+                        <a href="#" class="event-details-button" data-event="{{ $event.GUID }}">{{ $event.Kind }}</a>
+                    </span>
+                    <div class="event-{{ $event.GUID }}-details hidden">
+                        <span>Event GUID:</span>
+                        <span>{{ $event.GUID }}</span>
+                        <div>
+                            <span>{{ $event.Details }}</span>
+                        </div>
+                    </div>
+                </td>
+                <td>{{ $event.Sender }}</td>
+                <td>
+                    <a href="/events/{{ $event.Owner }}/{{ $event.Repository }}">{{ $event.Owner }}/{{ $event.Repository }}</a>
+                    <span>
+                        <a href="/events/{{ $event.Owner }}/{{ $event.Repository }}/{{ $event.Branch }}">
+                            {{ if $event.PullRequestNumber }}
+                                #{{ $event.PullRequestNumber }}
+                            {{ else }}
+                                {{ $event.Branch }}
+                            {{ end }}
+                        </a>
+                    </span>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            {{ end }}
+            {{ range $job := $jobs }}
+            <tr>
+                <td data-order='{{ $event.Time.Format "2006-01-02 15:04:05" }}'>
+                    {{- if (vdate $event.Time).IsToday -}}
+                        {{ $event.Time.Format "15:04:05" }}
+                    {{- else -}}
+                        {{ $event.Time.Format "2006-01-02 15:04:05" }}
+                    {{- end -}}
+                </td>
+                <td title="{{ $event.Details }}">
+                    <span>
+                        <a href="#" class="event-details-button" data-event="{{ $event.GUID }}">{{ $event.Kind }}</a>
+                    </span>
+                    <div class="event-{{ $event.GUID }}-details hidden">
+                        <span>Event GUID:</span>
+                        <span>{{ $event.GUID }}</span>
+                        <div>
+                            <span>{{ $event.Details }}</span>
+                        </div>
+                    </div>
+                </td>
+                <td>{{ $event.Sender }}</td>
+                <td>
+                    <a href="/events/{{ $event.Owner }}/{{ $event.Repository }}">{{ $event.Owner }}/{{ $event.Repository }}</a>
+                    <span>
+                        <a href="/events/{{ $job.Owner }}/{{ $job.Repository }}/{{ $job.Branch }}">
+                            {{ if $job.PullRequestNumber }}
+                                #{{ $job.PullRequestNumber }}
+                            {{ else }}
+                                {{ $job.Branch }}
+                            {{ end }}
+                        </a>
+                    </span>
+                </td>
+                <td title="{{ $job.Name }}">
+                    <a href="/job/{{ $job.Name }}.yaml" title="Open YAML definition for Job {{ $job.Name }}">
+                        <clr-icon shape="file" size="16" class="icon"></clr-icon>
+                    </a>
+                    <span class="job-type-{{ lower $job.Type }}">{{ $job.Type }}</span>
+                </td>
+                <td>
+                    {{ if $job.ReportURL }}
+                        <a href="{{ $job.ReportURL }}">{{ $job.Context }} #{{ $job.Build }}</a>
+                    {{ else }}
+                        {{ $job.Context }}
+                        {{ with $job.Build }}#{{ . }}{{ end }}
+                    {{ end }}
+                </td>
+                <td class="job-state-{{ lower $job.State }}" title="{{ $job.Description }}">{{ $job.State }}</td>
+                <td data-order='{{ $job.Start.Format "2006-01-02 15:04:05" }}'>
+                    {{- if (vdate $job.Start).IsToday -}}
+                        {{ $job.Start.Format "15:04:05" }}
+                    {{- else -}}
+                        {{ $job.Start.Format "2006-01-02 15:04:05" }}
+                    {{- end -}}
+                </td>
+                <td data-order='{{ if not $job.End.IsZero }}{{ $job.End.Format "2006-01-02 15:04:05" }}{{ end }}'>
+                    {{- if not $job.End.IsZero }}
+                        {{- if (vdate $job.End).IsToday -}}
+                            {{ $job.End.Format "15:04:05" }}
+                        {{- else -}}
+                            {{ $job.End.Format "2006-01-02 15:04:05" }}
+                        {{- end -}}
+                    {{- end -}}
+                </td>
+                <td data-order="{{ $job.Duration.Seconds }}">{{ with $job.Duration }}{{ . }}{{ end }}</td>
+            </tr>
+            {{ end }}
+            {{ end }}
+        </tbody>
+    </table>
+</section>

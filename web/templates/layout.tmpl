@@ -1,0 +1,44 @@
+<html>
+<head>
+    <link href="/static/lib/clr-icons.min.css" type="text/css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/jquery.dataTables.min.css" integrity="sha512-1k7mWiTNoyx2XtmI96o+hdjP8nn0f3Z2N4oF/9ZZRgijyV4omsKOXEnqL1gKQNPy2MTSP9rIEWGcH/CInulptA==" crossorigin="anonymous" type="text/css" rel="stylesheet" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link rel="stylesheet" href="/static/lib/clr-ui.min.css" />
+    <link href="/static/app.css?v={{ appVersion }}" type="text/css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" type="text/javascript" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous" type="text/javascript" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js" integrity="sha512-BkpSL20WETFylMrcirBahHfSnY++H2O1W+UnEEO4yNIl+jI2+zowyoGJpbtk6bx97fBXf++WJHSSK2MV4ghPcg==" crossorigin="anonymous" type="text/javascript" defer></script>
+    <script src="/static/lib/custom-elements.min.js" type="text/javascript" defer></script>
+    <script src="/static/lib/clr-icons.min.js" type="text/javascript" defer></script>
+    <script src="/static/app.js?v={{ appVersion }}" type="text/javascript" defer></script>
+</head>
+<body>
+    <main class="main-container">
+        <header class="top-header">
+            <h1 class="header-title">
+                <span class="logo">
+                    <a href="/">
+                        <img src="/static/logo-jx.svg" width="50px" /> Lighthouse
+                    </a>
+                </span>
+                {{ partial "breadcrumb" }}
+            </h1>
+            <div class="header-metadata">
+                <span><a href="/events">Events</a></span>
+                <span><a href="/jobs">Jobs</a></span>
+                <span><a href="/merge/status">Merge Status</a></span>
+                <span><a href="/merge/history">Merge History</a></span>
+            </div>
+        </header>
+        {{ yield }}
+        <footer>
+            <span class="version">
+                <a href="https://github.com/jenkins-x-plugins/lighthouse-webui-plugin">Lighthouse Web UI</a>
+                version <a href="https://github.com/jenkins-x-plugins/lighthouse-webui-plugin/releases/tag/v{{ appVersion }}">{{ appVersion }}</a>
+            </span>
+        </footer>
+    </main>
+</body>
+</html>

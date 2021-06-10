@@ -1,0 +1,16 @@
+{{- if .Values.istio.enabled }}
+apiVersion: {{ .Values.istio.apiVersion }}
+kind: VirtualService
+metadata:
+  name: {{ include "webui.fullname" $ }}
+spec:
+  gateways:
+  - {{ .Values.istio.gateway }}
+  hosts:
+  - lighthouse{{ .Values.jxRequirements.ingress.namespaceSubDomain }}{{ .Values.jxRequirements.ingress.domain }}
+  http:
+  - route:
+    - destination:
+        host: {{ include "webui.fullname" $ }}
+      weight: 100
+{{- end }}
