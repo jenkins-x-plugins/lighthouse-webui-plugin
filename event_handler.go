@@ -51,12 +51,19 @@ func convertWebhookToEvent(webhook scm.Webhook) *Event {
 		ref := event.Ref
 		ref = strings.TrimPrefix(ref, "refs/heads/")
 		ref = strings.TrimPrefix(ref, "refs/tags/")
-		return &Event{
+		e := Event{
 			GUID:    event.GUID,
 			Details: ref,
 			Sender:  event.Sender.Login,
 			Branch:  ref,
 		}
+		if event.Deleted {
+			e.Action = scm.ActionDelete.String()
+		}
+		if event.Created {
+			e.Action = scm.ActionCreate.String()
+		}
+		return &e
 	case *scm.PullRequestHook:
 		var details string
 		switch event.Action {
