@@ -57,7 +57,6 @@ spec:
         - -log-level
         - {{ . }}
         {{- end }}
-        {{- if .Values.pod.env }}
         env:
         - name: XDG_CONFIG_HOME
           value: /home/jenkins
@@ -67,7 +66,6 @@ spec:
         {{- range $pkey, $pval := .Values.pod.env }}
         - name: {{ $pkey }}
           value: {{ quote $pval }}
-        {{- end }}
         {{- end }}
         {{- with .Values.pod.envFrom }}
         envFrom:
