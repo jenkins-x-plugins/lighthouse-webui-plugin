@@ -46,7 +46,7 @@
                 <td title="{{ $event.GUID }}">
                     {{ if eq $event.Kind "push" }}
                         <span class="iconify" data-icon="octicon:repo-push-16" data-inline="false" title="{{ $event.Kind }}"></span>
-                        <span>{{ $event.Details }}</span>
+                        <span class="event-action-{{ $event.Action }}">{{ $event.Details }}</span>
                     {{ else if eq $event.Kind "pull_request" }}
                         {{ if eq $event.Action "closed" }}
                         <span class="iconify" data-icon="octicon:git-pull-request-closed-16" data-inline="false" title="{{ $event.Kind }}"></span>
