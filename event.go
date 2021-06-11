@@ -13,7 +13,9 @@ type Event struct {
 	Repository string
 	Branch     string
 	Kind       string
+	Action     string
 	Details    string
+	URL        string
 	Sender     string
 	Time       time.Time
 }

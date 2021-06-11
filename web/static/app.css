@@ -142,6 +142,15 @@ body {
     color: var(--color-error);
 }
 
+.event-comment {
+    font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+    font-size: 12px;
+    margin: 5px;
+}
+.event-action-deleted {
+    text-decoration: line-through;
+}
+
 .hidden {
     display: none;
     visibility: hidden;

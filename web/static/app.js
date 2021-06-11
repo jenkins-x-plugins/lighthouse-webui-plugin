@@ -57,20 +57,26 @@ $(document).ready(() => {
 });
 
 (function(){
-    const toggleClassName = (selector, cssClass) => {
-        document.querySelectorAll(selector).forEach(element => {
-            if (element.classList.contains(cssClass)) {
-                element.classList.remove(cssClass);
+    const copyToClipboard = (text) => {
+        navigator.permissions.query({name: "clipboard-write"}).then(result => {
+            if (result.state == "granted" || result.state == "prompt") {
+                navigator.clipboard.writeText(text).then(function() {
+                    console.log("ok, copied to clipboard");
+                }, function() {
+                    console.log("oops, failed to copy to clipboard");
+                });
             } else {
-                element.classList.add(cssClass);
+                console.log("no permission to write to the clipboard", result);
             }
         });
     };
 
-    document.querySelectorAll('.event-details-button').forEach(element => {
+    document.querySelectorAll('.event-copy-guid-to-clipboard').forEach(element => {
         element.addEventListener('click', event => {
-            const eventGuid = event.target.dataset.event;
-            toggleClassName('.event-' + eventGuid + '-details', 'hidden');
+            const eventGuid = event.target.dataset.guid;
+            if (eventGuid) {
+                copyToClipboard(eventGuid);
+            }
         })
     });
 })();

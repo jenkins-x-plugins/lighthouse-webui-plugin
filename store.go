@@ -304,7 +304,9 @@ func bleveDocToEvent(doc *search.DocumentMatch) Event {
 		Repository: doc.Fields["Repository"].(string),
 		Branch:     doc.Fields["Branch"].(string),
 		Kind:       doc.Fields["Kind"].(string),
+		Action:     doc.Fields["Action"].(string),
 		Details:    doc.Fields["Details"].(string),
+		URL:        doc.Fields["URL"].(string),
 		Sender:     doc.Fields["Sender"].(string),
 		Time:       eventTime,
 	}

@@ -53,31 +53,50 @@ func convertWebhookToEvent(webhook scm.Webhook) *Event {
 		ref = strings.TrimPrefix(ref, "refs/tags/")
 		return &Event{
 			GUID:    event.GUID,
-			Details: fmt.Sprintf("pushed to %s", ref),
+			Details: ref,
 			Sender:  event.Sender.Login,
 			Branch:  ref,
 		}
 	case *scm.PullRequestHook:
+		var details string
+		switch event.Action {
+		case scm.ActionLabel, scm.ActionUnlabel:
+			details = fmt.Sprintf("%s: %s", event.Action.String(), event.Label.Name)
+		case scm.ActionAssigned, scm.ActionUnassigned:
+			var assignees []string
+			for _, assignee := range event.PullRequest.Assignees {
+				assignees = append(assignees, assignee.Login)
+			}
+			details = fmt.Sprintf("%s. Assignees: %s", event.Action.String(), strings.Join(assignees, ", "))
+		default:
+			details = event.Action.String()
+		}
 		return &Event{
 			GUID:    event.GUID,
-			Details: fmt.Sprintf("PR #%d %s", event.PullRequest.Number, event.Action.String()),
+			Action:  event.Action.String(),
+			Details: details,
 			Sender:  event.Sender.Login,
 			Branch:  fmt.Sprintf("PR-%d", event.PullRequest.Number),
+			URL:     event.PullRequest.Link,
 		}
 	case *scm.PullRequestCommentHook:
-		comment, _ := goutils.Abbreviate(event.Comment.Body, 30)
+		comment, _ := goutils.Abbreviate(event.Comment.Body, 50)
 		return &Event{
 			GUID:    event.GUID,
-			Details: fmt.Sprintf("PR #%d comment %s: %s", event.PullRequest.Number, event.Action.String(), comment),
+			Action:  event.Action.String(),
+			Details: comment,
 			Sender:  event.Sender.Login,
 			Branch:  fmt.Sprintf("PR-%d", event.PullRequest.Number),
+			URL:     event.Comment.Link,
 		}
 	case *scm.IssueCommentHook:
-		comment, _ := goutils.Abbreviate(event.Comment.Body, 30)
+		comment, _ := goutils.Abbreviate(event.Comment.Body, 50)
 		e := Event{
 			GUID:    event.GUID,
-			Details: fmt.Sprintf("Issue #%d comment %s: %s", event.Issue.Number, event.Action.String(), comment),
+			Action:  event.Action.String(),
+			Details: comment,
 			Sender:  event.Sender.Login,
+			URL:     event.Comment.Link,
 		}
 		if event.Issue.PullRequest {
 			e.Branch = fmt.Sprintf("PR-%d", event.Issue.Number)

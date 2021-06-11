@@ -117,6 +117,7 @@ func (r Router) Handler() (http.Handler, error) {
 	router.Handle("/events/{owner}/{repository}/{branch}", eventsHandler)
 
 	router.Handle("/", http.RedirectHandler("/events", http.StatusPermanentRedirect))
+	router.Handle("/merge", http.RedirectHandler("/merge/status", http.StatusPermanentRedirect))
 
 	handler := negroni.New(
 		negroni.NewRecovery(),
