@@ -11,7 +11,8 @@ $(document).ready(() => {
             { targets: 'time', orderDataType: 'dom-order' },
             { targets: 'start', orderDataType: 'dom-order' },
             { targets: 'end', orderDataType: 'dom-order' },
-            { targets: 'duration', orderDataType: 'dom-order', type: 'numeric' }
+            { targets: 'duration', orderDataType: 'dom-order', type: 'numeric' },
+            { targets: 'guid', visible: false }
         ],
         language: {
             emptyTable: "No events received yet - push something or comment on a PR, or make sure your webhooks are correctly setup.<br>See the <a href='/jobs'>Jobs</a> instead?"
@@ -26,7 +27,8 @@ $(document).ready(() => {
             { targets: 'time', orderDataType: 'dom-order' },
             { targets: 'start', orderDataType: 'dom-order' },
             { targets: 'end', orderDataType: 'dom-order' },
-            { targets: 'duration', orderDataType: 'dom-order', type: 'numeric' }
+            { targets: 'duration', orderDataType: 'dom-order', type: 'numeric' },
+            { targets: 'guid', visible: false }
         ]
     });
 

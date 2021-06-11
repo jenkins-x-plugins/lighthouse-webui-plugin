@@ -28,6 +28,7 @@
                 <th class="start">Start</th>
                 <th class="end">End</th>
                 <th class="duration">Duration</th>
+                <th class="guid"></th>
             </tr>
         </thead>
         <tbody>
@@ -142,6 +143,11 @@
                     {{- end -}}
                 </td>
                 <td data-order="{{ $job.Duration.Seconds }}">{{ with $job.Duration }}{{ . }}{{ end }}</td>
+                <td>
+                    {{ if $event }}
+                        {{ $event.GUID }}
+                    {{ end }}
+                </td>
             </tr>
             {{ end }}
         </tbody>
