@@ -61,6 +61,9 @@ spec:
         env:
         - name: XDG_CONFIG_HOME
           value: /home/jenkins
+        - name: LIGHTHOUSE_HMAC_KEY
+          valueFrom:
+            secretKeyRef: {{- .Values.secrets.lighthouse.hmac.secretKeyRef | toYaml | nindent 14 }}
         {{- range $pkey, $pval := .Values.pod.env }}
         - name: {{ $pkey }}
           value: {{ quote $pval }}
