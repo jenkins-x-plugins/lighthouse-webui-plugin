@@ -12,6 +12,13 @@ config:
   resyncInterval: 60s
   logLevel: INFO
 
+secrets:
+  lighthouse:
+    hmac:
+      secretKeyRef:
+        name: lighthouse-hmac-token
+        key: hmac
+
 image:
   repository: gcr.io/jenkinsxio/lighthouse-webui-plugin
   # If no tag, fallback to the Chart's AppVersion
