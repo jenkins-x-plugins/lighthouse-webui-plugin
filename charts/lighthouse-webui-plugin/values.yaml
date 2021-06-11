@@ -20,7 +20,7 @@ secrets:
         key: hmac
 
 image:
-  repository: gcr.io/jenkinsxio/lighthouse-webui-plugin
+  repository: ghcr.io/jenkins-x/lighthouse-webui-plugin
   # If no tag, fallback to the Chart's AppVersion
   tag:
   pullPolicy:
