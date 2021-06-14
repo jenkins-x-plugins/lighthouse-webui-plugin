@@ -11,6 +11,13 @@ config:
   namespace: jx
   resyncInterval: 60s
   logLevel: INFO
+  store:
+    gc:
+      # max number of events to keep in the store - if non-zero
+      maxEventsToKeep: 0
+      # max age of the events to keep in the store - if non-zero
+      # this is a golang duration. Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
+      eventsMaxAge: 0
 
 secrets:
   lighthouse:
@@ -26,10 +33,12 @@ image:
   pullPolicy:
 
 deployment:
-  replicas: 1
   revisionHistoryLimit: 2
   labels: {}
   annotations: {}
+  strategy:
+    # if you enable persistence, you should switch to `Recreate`
+    type: RollingUpdate
 
 pod:
   resources:
@@ -53,6 +62,7 @@ pod:
     fsGroup: 1000
   env: {}
   envFrom: []
+
 service:
   port: 80
   type:
@@ -96,10 +106,16 @@ istio:
   apiVersion: networking.istio.io/v1beta1
   gateway: jx-gateway
 
-jx:
-  # whether to create a Release CRD when installing charts with Release CRDs included
-  releaseCRD: true
-  
+# persistence for the events
+persistence:
+  enabled: false
+  size: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName:
+  labels: {}
+  annotations: {} 
+
 serviceAccount:
   # allow additional annotations to be added to the ServiceAccount
   # such as for workload identity on clouds
@@ -110,3 +126,7 @@ role:
   - apiGroups: ["lighthouse.jenkins.io"]
     resources: ["lighthousejobs"]
     verbs: ["list", "watch", "get"]
+
+jx:
+  # whether to create a Release CRD when installing charts with Release CRDs included
+  releaseCRD: true

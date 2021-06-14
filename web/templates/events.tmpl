@@ -14,6 +14,83 @@
     {{ end }}
 {{ end }}
 
+<section class="in-building">
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-md-6 clr-col-lg-4 clr-col-xl-4">
+            <div class="card facet-card">
+                <span class="title card-header">Top Kinds</span>
+                <ul class="card-block">
+                    {{- range (sortFacets .Events.Counts.Kinds) -}}
+                    {{- if and .key .value -}}
+                    <li>
+                        <span class="count">{{ .value }}</span>
+                        <span class="key">
+                            {{- if eq .key "push" -}}
+                                <span class="iconify" data-icon="octicon:repo-push-16" data-inline="false" title="{{ .key }}"></span>
+                            {{- else if eq .key "pull_request" -}}
+                                <span class="iconify" data-icon="octicon:git-pull-request-16" data-inline="false" title="{{ .key }}"></span>
+                            {{- else if eq .key "pull_request_comment" -}}
+                                <span class="iconify" data-icon="octicon:code-review-16" data-inline="false" title="{{ .key }}"></span>
+                            {{- else if eq .key "issue_comment" -}}
+                                <span class="iconify" data-icon="octicon:comment-16" data-inline="false" title="{{ .key }}"></span>
+                            {{- end -}}
+                            {{- if eq .key "Other" -}}
+                                <span>{{ .key }}</span>
+                            {{- else -}}
+                                <span><a href="?q=Kind:{{ .key }}">{{ .key }}</a></span>
+                            {{- end -}}
+                        </span>
+                    </li>
+                    {{- end -}}
+                    {{- end -}}
+                </ul>
+            </div>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-md-6 clr-col-lg-4 clr-col-xl-4">
+            <div class="card facet-card">
+                <span class="title card-header">Top Repositories</span>
+                <ul class="card-block">
+                    {{- range (sortFacets .Events.Counts.Repositories) -}}
+                    {{- if and .key .value -}}
+                    <li>
+                        <span class="count">{{ .value }}</span>
+                        <span class="key">
+                            {{- if eq .key "Other" -}}
+                            {{ .key }}
+                            {{- else -}}
+                            <a href="?q=Repository:{{ .key }}">{{ .key }}</a>
+                            {{- end -}}
+                        </span>
+                    </li>
+                    {{- end -}}
+                    {{- end -}}
+                </ul>
+            </div>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-md-6 clr-col-lg-4 clr-col-xl-4">
+            <div class="card facet-card">
+                <span class="title card-header">Top Senders</span>
+                <ul class="card-block">
+                    {{- range (sortFacets .Events.Counts.Senders) -}}
+                    {{- if and .key .value -}}
+                    <li>
+                        <span class="count">{{ .value }}</span>
+                        <span class="key">
+                            {{- if eq .key "Other" -}}
+                            {{ .key }}
+                            {{- else -}}
+                            <a href="?q=Sender:{{ .key }}">{{ .key }}</a>
+                            {{- end -}}
+                        </span>
+                    </li>
+                    {{- end -}}
+                    {{- end -}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="dataTable-container">
     <table id="events" class="display cell-border">
         <thead>
@@ -32,7 +109,7 @@
             </tr>
         </thead>
         <tbody>
-            {{ range $event := .Events }}
+            {{ range $event := .Events.Events }}
             {{ $jobs := (loadJobsForEvent $event.GUID) }}
             {{ if not $jobs }}
             <tr>

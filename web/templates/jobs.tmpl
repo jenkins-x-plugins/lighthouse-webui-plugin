@@ -14,6 +14,95 @@
     {{ end }}
 {{ end }}
 
+<section class="in-building">
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-sm-6 clr-col-md-6 clr-col-lg-3 clr-col-xl-3">
+            <div class="card facet-card">
+                <span class="title card-header">Top States</span>
+                <ul class="card-block">
+                    {{- range (sortFacets .Jobs.Counts.States) -}}
+                    {{- if and .value -}}
+                    <li>
+                        <span class="count">{{ .value }}</span>
+                        <span class='key label job-state job-state-{{ lower .key | default "none" }}'>
+                            {{- if or (eq .key "Other") (eq .key "") -}}
+                            {{ .key | default "None" }}
+                            {{- else -}}
+                            <a href="?q=State:{{ .key }}">{{ .key }}</a>
+                            {{- end -}}
+                        </span>
+                    </li>
+                    {{- end -}}
+                    {{- end -}}
+                </ul>
+            </div>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-md-6 clr-col-lg-3 clr-col-xl-3">
+            <div class="card facet-card">
+                <span class="title card-header">Top Types</span>
+                <ul class="card-block">
+                    {{- range (sortFacets .Jobs.Counts.Types) -}}
+                    {{- if and .key .value -}}
+                    <li>
+                        <span class="count">{{ .value }}</span>
+                        <span class="key">
+                            {{- if eq .key "Other" -}}
+                            {{ .key }}
+                            {{- else -}}
+                            <a href="?q=Type:{{ .key }}">{{ .key }}</a>
+                            {{- end -}}
+                        </span>
+                    </li>
+                    {{- end -}}
+                    {{- end -}}
+                </ul>
+            </div>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-md-6 clr-col-lg-3 clr-col-xl-3">
+            <div class="card facet-card">
+                <span class="title card-header">Top Repositories</span>
+                <ul class="card-block">
+                    {{- range (sortFacets .Jobs.Counts.Repositories) -}}
+                    {{- if and .key .value -}}
+                    <li>
+                        <span class="count">{{ .value }}</span>
+                        <span class="key">
+                            {{- if eq .key "Other" -}}
+                            {{ .key }}
+                            {{- else -}}
+                            <a href="?q=Repository:{{ .key }}">{{ .key }}</a>
+                            {{- end -}}
+                        </span>
+                    </li>
+                    {{- end -}}
+                    {{- end -}}
+                </ul>
+            </div>
+        </div>
+        <div class="clr-col-12 clr-col-sm-6 clr-col-md-6 clr-col-lg-3 clr-col-xl-3">
+            <div class="card facet-card">
+                <span class="title card-header">Top Authors</span>
+                <ul class="card-block">
+                    {{- range (sortFacets .Jobs.Counts.Authors) -}}
+                    {{- if and .key .value -}}
+                    <li>
+                        <span class="count">{{ .value }}</span>
+                        <span class="key">
+                            {{- if eq .key "Other" -}}
+                            {{ .key }}
+                            {{- else -}}
+                            <a href="?q=Author:{{ .key }}">{{ .key }}</a>
+                            {{- end -}}
+                        </span>
+                    </li>
+                    {{- end -}}
+                    {{- end -}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="dataTable-container">
     <table id="jobs" class="display cell-border">
         <thead>
@@ -32,7 +121,7 @@
             </tr>
         </thead>
         <tbody>
-            {{ range $job := .Jobs }}
+            {{ range $job := .Jobs.Jobs }}
             {{ $event := (loadEventForJob $job.EventGUID) }}
             <tr>
                 {{ $time := $job.Start }}

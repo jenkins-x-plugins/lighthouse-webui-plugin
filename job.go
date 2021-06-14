@@ -8,7 +8,15 @@ import (
 	lhv1alpha1 "github.com/jenkins-x/lighthouse/pkg/apis/lighthouse/v1alpha1"
 )
 
-type Jobs []Job
+type Jobs struct {
+	Jobs   []Job
+	Counts struct {
+		States       map[string]int
+		Types        map[string]int
+		Repositories map[string]int
+		Authors      map[string]int
+	}
+}
 
 type Job struct {
 	Name        string
@@ -19,6 +27,7 @@ type Job struct {
 	Branch      string
 	Build       string
 	Context     string
+	Author      string
 	State       string
 	Description string
 	ReportURL   string
@@ -54,6 +63,13 @@ func JobFromLighthouseJob(lhjob *lhv1alpha1.LighthouseJob) Job {
 	if lhjob.Status.CompletionTime != nil {
 		j.End = lhjob.Status.CompletionTime.Time
 		j.Duration = j.End.Sub(j.Start)
+	}
+	if lhjob.Spec.Refs != nil {
+		for _, pr := range lhjob.Spec.Refs.Pulls {
+			if pr.Author != "" && j.Author == "" {
+				j.Author = pr.Author
+			}
+		}
 	}
 	return j
 }

@@ -1,7 +1,9 @@
 package webui
 
 import (
+	"errors"
 	"fmt"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -10,9 +12,19 @@ import (
 	"github.com/blevesearch/bleve/analysis/analyzer/keyword"
 	"github.com/blevesearch/bleve/search"
 	"github.com/blevesearch/bleve/search/query"
+	"github.com/sirupsen/logrus"
+)
+
+const (
+	// eventsIndexMappingVersion is the version of the events index mapping
+	// if you change something in the mapping, increment this version
+	// this is used to ensure the index will be recreated if we change the mapping
+	eventsIndexMappingVersion = 1
 )
 
 type Store struct {
+	config            StoreConfig
+	gcStopChan        chan struct{}
 	events            bleve.Index
 	jobs              bleve.Index
 	mergeStatus       []MergePool
@@ -21,7 +33,13 @@ type Store struct {
 	mergeHistoryMutex sync.RWMutex
 }
 
-func NewStore() (*Store, error) {
+type StoreConfig struct {
+	DataPath     string
+	MaxEvents    int
+	EventsMaxAge time.Duration
+}
+
+func NewStore(cfg StoreConfig, logger *logrus.Logger) (*Store, error) {
 	var (
 		store = new(Store)
 		err   error
@@ -44,12 +62,49 @@ func NewStore() (*Store, error) {
 		return nil, fmt.Errorf("failed to created a Bleve in-memory Index: %w", err)
 	}
 
-	store.events, err = bleve.NewMemOnly(eventsMapping)
-	if err != nil {
-		return nil, fmt.Errorf("failed to created a Bleve in-memory Index: %w", err)
+	if cfg.DataPath == "" {
+		store.events, err = bleve.NewMemOnly(eventsMapping)
+		if err != nil {
+			return nil, fmt.Errorf("failed to created a Bleve in-memory Index: %w", err)
+		}
+	} else {
+		eventsDataPath := filepath.Join(cfg.DataPath, fmt.Sprintf("events-v%d", eventsIndexMappingVersion))
+		store.events, err = bleve.Open(eventsDataPath)
+		if errors.Is(err, bleve.ErrorIndexPathDoesNotExist) {
+			store.events, err = bleve.New(eventsDataPath, eventsMapping)
+		} else if err != nil {
+			if logger != nil {
+				logger.WithError(err).WithField("index-path", eventsDataPath).Warning("failed to open existing Bleve index - a new (empty) index will be created...")
+			}
+			store.events, err = bleve.New(eventsDataPath, eventsMapping)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("failed to created a Bleve Index at %s: %w", eventsDataPath, err)
+		}
 	}
 
+	store.config = cfg
+	store.gcStopChan = make(chan struct{})
+
+	ticker := time.NewTicker(1 * time.Minute)
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				store.CollectGarbage()
+			case <-store.gcStopChan:
+				logger.Info("Store GarbageCollector exiting...")
+				return
+			}
+		}
+	}()
+
 	return store, nil
+}
+
+func (s *Store) Close() error {
+	close(s.gcStopChan)
+	return s.events.Close()
 }
 
 func (s *Store) SetMergeStatus(pools []MergePool) {
@@ -123,6 +178,10 @@ func (s *Store) QueryJobs(q JobsQuery) (*Jobs, error) {
 	request.SortBy([]string{"-Start"})
 	request.Size = 10000
 	request.Fields = []string{"*"}
+	request.AddFacet("State", bleve.NewFacetRequest("State", 4))
+	request.AddFacet("Repository", bleve.NewFacetRequest("Repository", 3))
+	request.AddFacet("Type", bleve.NewFacetRequest("Type", 3))
+	request.AddFacet("Author", bleve.NewFacetRequest("Author", 3))
 	result, err := s.jobs.Search(request)
 	if err != nil {
 		return nil, fmt.Errorf("failed to search for %v: %w", q, err)
@@ -137,6 +196,9 @@ func (s *Store) QueryEvents(q EventsQuery) (*Events, error) {
 	request.SortBy([]string{"-Time"})
 	request.Size = 10000
 	request.Fields = []string{"*"}
+	request.AddFacet("Kind", bleve.NewFacetRequest("Kind", 4))
+	request.AddFacet("Repository", bleve.NewFacetRequest("Repository", 3))
+	request.AddFacet("Sender", bleve.NewFacetRequest("Sender", 3))
 	result, err := s.events.Search(request)
 	if err != nil {
 		return nil, fmt.Errorf("failed to search for %v: %w", q, err)
@@ -144,6 +206,38 @@ func (s *Store) QueryEvents(q EventsQuery) (*Events, error) {
 
 	events := bleveResultToEvents(result)
 	return &events, nil
+}
+
+func (s *Store) CollectGarbage() error {
+	var deleteMatchingEvents = func(req *bleve.SearchRequest) error {
+		result, err := s.events.Search(req)
+		if err != nil {
+			return err
+		}
+		for _, doc := range result.Hits {
+			if err = s.events.Delete(doc.ID); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	if s.config.MaxEvents > 0 {
+		request := bleve.NewSearchRequest(bleve.NewMatchAllQuery())
+		request.SortBy([]string{"-Time"})
+		request.Size = 1000
+		request.From = s.config.MaxEvents
+		if err := deleteMatchingEvents(request); err != nil {
+			return err
+		}
+	}
+	if s.config.EventsMaxAge > 0 {
+		request := bleve.NewSearchRequest(bleve.NewDateRangeQuery(time.Time{}, time.Now().Add(-s.config.EventsMaxAge)))
+		request.Size = 1000
+		if err := deleteMatchingEvents(request); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type JobsQuery struct {
@@ -199,7 +293,28 @@ func bleveResultToJobs(result *bleve.SearchResult) Jobs {
 
 	for _, doc := range result.Hits {
 		job := bleveDocToJob(doc)
-		jobs = append(jobs, job)
+		jobs.Jobs = append(jobs.Jobs, job)
+	}
+
+	for _, facet := range result.Facets {
+		counts := map[string]int{}
+		for _, term := range facet.Terms {
+			counts[term.Term] = term.Count
+		}
+		for _, numericRange := range facet.NumericRanges {
+			counts[numericRange.Name] = numericRange.Count
+		}
+		counts["Other"] = facet.Other
+		switch facet.Field {
+		case "State":
+			jobs.Counts.States = counts
+		case "Repository":
+			jobs.Counts.Repositories = counts
+		case "Type":
+			jobs.Counts.Types = counts
+		case "Author":
+			jobs.Counts.Authors = counts
+		}
 	}
 
 	return jobs
@@ -224,6 +339,7 @@ func bleveDocToJob(doc *search.DocumentMatch) Job {
 		Branch:      doc.Fields["Branch"].(string),
 		Build:       doc.Fields["Build"].(string),
 		Context:     doc.Fields["Context"].(string),
+		Author:      doc.Fields["Author"].(string),
 		State:       doc.Fields["State"].(string),
 		Description: doc.Fields["Description"].(string),
 		ReportURL:   doc.Fields["ReportURL"].(string),
@@ -287,7 +403,26 @@ func bleveResultToEvents(result *bleve.SearchResult) Events {
 
 	for _, doc := range result.Hits {
 		event := bleveDocToEvent(doc)
-		events = append(events, event)
+		events.Events = append(events.Events, event)
+	}
+
+	for _, facet := range result.Facets {
+		counts := map[string]int{}
+		for _, term := range facet.Terms {
+			counts[term.Term] = term.Count
+		}
+		for _, numericRange := range facet.NumericRanges {
+			counts[numericRange.Name] = numericRange.Count
+		}
+		counts["Other"] = facet.Other
+		switch facet.Field {
+		case "Kind":
+			events.Counts.Kinds = counts
+		case "Repository":
+			events.Counts.Repositories = counts
+		case "Sender":
+			events.Counts.Senders = counts
+		}
 	}
 
 	return events
