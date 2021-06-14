@@ -49,6 +49,7 @@ func (r Router) Handler() (http.Handler, error) {
 				"traceURL":         functions.TraceURLFunc(eventTraceURLTemplate),
 				"loadJobsForEvent": functions.LoadJobsForEventFunc(r.Store),
 				"loadEventForJob":  functions.LoadEventForJobFunc(r.Store),
+				"sortFacets":       functions.SortFacets,
 				"vdate":            functions.VDate,
 				"appVersion":       functions.AppVersion,
 			},

@@ -11,8 +11,11 @@ metadata:
   annotations: {{- tpl (toYaml .) $ | trim | nindent 4 }}
   {{- end }}
 spec:
-  replicas: {{ .Values.deployment.replicas }}
+  replicas: 1
   revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
+  {{- with .Values.deployment.strategy }}
+  strategy: {{- tpl (toYaml .) $ | trim | nindent 4 }}
+  {{- end }}
   selector:
     matchLabels: {{- include "webui.labels.selector" . | nindent 6 }}
   template:
@@ -57,6 +60,12 @@ spec:
         - -log-level
         - {{ . }}
         {{- end }}
+        - -store-data-path
+        - "/data"
+        - -store-max-events
+        - {{ .Values.config.store.gc.maxEventsToKeep }}
+        - -store-events-max-age
+        - {{ .Values.config.store.gc.eventsMaxAge }}
         env:
         - name: XDG_CONFIG_HOME
           value: /home/jenkins
@@ -71,6 +80,9 @@ spec:
         envFrom:
           {{- toYaml . | trim | nindent 10 }}
         {{- end }}
+        volumeMounts:
+        - name: data
+          mountPath: "/data"
         ports:
         - name: http
           containerPort: 8080
@@ -83,6 +95,14 @@ spec:
             port: http
         {{- with .Values.pod.resources }}
         resources: {{- toYaml . | trim | nindent 10 }}
+        {{- end }}
+      volumes:
+      - name: data
+        {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ include "webui.fullname" . }}
+        {{- else }}
+        emptyDir: {}
         {{- end }}
       {{- with .Values.pod.securityContext }}
       securityContext: {{- toYaml . | trim | nindent 8 }}

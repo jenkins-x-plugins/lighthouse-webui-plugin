@@ -5,7 +5,14 @@ import (
 	"time"
 )
 
-type Events []Event
+type Events struct {
+	Events []Event
+	Counts struct {
+		Kinds        map[string]int
+		Repositories map[string]int
+		Senders      map[string]int
+	}
+}
 
 type Event struct {
 	GUID       string

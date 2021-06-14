@@ -73,6 +73,34 @@ body {
     flex: 0 0 auto;
 }
 
+.facet-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 7px;
+    padding: 10px;
+}
+
+.facet-card span.title {
+    font-weight: bold;
+}
+
+.facet-card ul {
+    list-style-type: none;
+}
+
+.facet-card ul li span.count {
+    display: inline-block;
+    width: 30px;
+}
+
+.facet-card span.job-state a, .facet-card span.job-state a:visited, .facet-card span.job-state a:hover, .facet-card span.job-state a:active {
+    color: inherit;
+}
+
+.facet-card .iconify {
+    margin-right: 5px;
+}
+
 #events_wrapper {
     background-color: #fff;
     padding: 20px;

@@ -1,0 +1,25 @@
+{{- if .Values.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "webui.fullname" . }}
+  labels:
+    {{- include "webui.labels" . | nindent 4 }}
+    {{- with .Values.persistence.labels }}
+      {{- tpl (toYaml .) $ | trim | nindent 4 }}
+    {{- end }}
+  {{- with .Values.persistence.annotations }}
+  annotations: {{- tpl (toYaml .) $ | trim | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.persistence.storageClassName }}
+  storageClassName: {{ . | quote }}
+  {{- end }}
+  accessModes:
+    {{- range .Values.persistence.accessModes }}
+    - {{ . | quote }}
+    {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size | quote }}
+{{- end -}}

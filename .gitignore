@@ -1,7 +1,8 @@
 .DS_Store
 .idea/
 
-build/
-dist/
+/build/
+/dist/
+/data/
 
 .cr-release-packages/
