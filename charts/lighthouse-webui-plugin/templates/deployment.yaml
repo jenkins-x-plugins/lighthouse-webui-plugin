@@ -63,9 +63,9 @@ spec:
         - -store-data-path
         - "/data"
         - -store-max-events
-        - {{ .Values.config.store.gc.maxEventsToKeep }}
+        - {{ .Values.config.store.gc.maxEventsToKeep | quote }}
         - -store-events-max-age
-        - {{ .Values.config.store.gc.eventsMaxAge }}
+        - {{ .Values.config.store.gc.eventsMaxAge | quote }}
         env:
         - name: XDG_CONFIG_HOME
           value: /home/jenkins
