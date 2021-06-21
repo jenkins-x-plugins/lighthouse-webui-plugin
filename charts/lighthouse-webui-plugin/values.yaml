@@ -76,6 +76,9 @@ ingress:
   labels: {}
   annotations: {}
 
+  apiVersion: "networking.k8s.io/v1beta1"
+  pathType: "ImplementationSpecific"
+
   # hosts:
   # - lighthouse.example.com
   # - lighthouse.foo.bar
