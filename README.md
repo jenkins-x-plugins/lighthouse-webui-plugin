@@ -8,9 +8,19 @@ This is a Web UI for [Lighthouse](https://github.com/jenkins-x/lighthouse), to v
 
 The goal is to make it easy to see what is happening inside Lighthouse.
 
+## Screenshots
+
+![events](docs/screenshots/events.png)
+
+![jobs](docs/screenshots/jobs.png)
+
+![merge-status](docs/screenshots/merge-status.png)
+
+![merge-history](docs/screenshots/merge-history.png)
+
 ## How It Works
 
-It is a Lighthouse External Plugin, and as such, it receives all the webhook events. It stores them in an in-memory [Bleve](http://blevesearch.com/) index.
+It is a Lighthouse External Plugin, and as such, it receives all the webhook events. It stores them in a [Bleve](http://blevesearch.com/) index - which can be persisted on disk in a PVC (when deployed in Kubernetes).
 
 It also uses the "informer" Kubernetes pattern to keep a local cache of the Lighthouse Jobs, and index them in an in-memory [Bleve](http://blevesearch.com/) index.
 
