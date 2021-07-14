@@ -2,7 +2,6 @@
 
 fullnameOverride:
 nameOverride:
-
 config:
   # https://GRAFANA_URL/explore?left=%5B%22now%22,%22now%22,%22Tempo%22,%7B%22query%22:%22{{.TraceID}}%22%7D%5D
   eventTraceURLTemplate:
@@ -18,20 +17,17 @@ config:
       # max age of the events to keep in the store - if non-zero
       # this is a golang duration. Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
       eventsMaxAge: 0
-
 secrets:
   lighthouse:
     hmac:
       secretKeyRef:
         name: lighthouse-hmac-token
         key: hmac
-
 image:
   repository: ghcr.io/jenkins-x/lighthouse-webui-plugin
   # If no tag, fallback to the Chart's AppVersion
-  tag:
+  tag: 0.1.5
   pullPolicy:
-
 deployment:
   revisionHistoryLimit: 2
   labels: {}
@@ -39,7 +35,6 @@ deployment:
   strategy:
     # if you enable persistence, you should switch to `Recreate`
     type: RollingUpdate
-
 pod:
   resources:
     requests:
@@ -62,36 +57,29 @@ pod:
     fsGroup: 1000
   env: {}
   envFrom: []
-
 service:
   port: 80
   type:
   loadBalancerIP:
   labels: {}
   annotations: {}
-
 ingress:
   enabled: false
   class: nginx
   labels: {}
   annotations: {}
-
   apiVersion: "networking.k8s.io/v1beta1"
   pathType: "ImplementationSpecific"
-
   # hosts:
   # - lighthouse.example.com
   # - lighthouse.foo.bar
   hosts: []
-
   # enables basic auth secret to be created
   basicAuth:
     enabled: false
     authData: ""
-
   tls:
     enabled: false
-
     # secrets:
     #   embedded:
     #     b64encodedCertificate: e30k
@@ -103,12 +91,10 @@ ingress:
     #     hosts:
     #     - lighthouse.foo.bar 
     secrets: {}
-
 istio:
   enabled: false
   apiVersion: networking.istio.io/v1beta1
   gateway: jx-gateway
-
 # persistence for the events
 persistence:
   enabled: false
@@ -117,19 +103,16 @@ persistence:
     - ReadWriteOnce
   storageClassName:
   labels: {}
-  annotations: {} 
-
+  annotations: {}
 serviceAccount:
   # allow additional annotations to be added to the ServiceAccount
   # such as for workload identity on clouds
   annotations: {}
-
 role:
   rules:
-  - apiGroups: ["lighthouse.jenkins.io"]
-    resources: ["lighthousejobs"]
-    verbs: ["list", "watch", "get"]
-
+    - apiGroups: ["lighthouse.jenkins.io"]
+      resources: ["lighthousejobs"]
+      verbs: ["list", "watch", "get"]
 jx:
   # whether to create a Release CRD when installing charts with Release CRDs included
   releaseCRD: true
