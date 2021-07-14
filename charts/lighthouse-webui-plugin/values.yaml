@@ -25,6 +25,7 @@ secrets:
       secretKeyRef:
         name: lighthouse-hmac-token
         key: hmac
+        optional: true
 
 image:
   repository: ghcr.io/jenkins-x/lighthouse-webui-plugin
