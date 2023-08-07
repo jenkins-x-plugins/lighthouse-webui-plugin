@@ -10,14 +10,14 @@ require (
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/jenkins-x-plugins/jx-pipeline v0.0.139 // indirect
-	github.com/jenkins-x/go-scm v1.9.0
-	github.com/jenkins-x/jx-api/v4 v4.0.33 // indirect
-	github.com/jenkins-x/jx-helpers/v3 v3.0.114 // indirect
+	github.com/jenkins-x/go-scm v1.10.10
+	github.com/jenkins-x/jx-helpers/v3 v3.0.130 // indirect
 	github.com/jenkins-x/lighthouse v1.0.44
+	github.com/magefile/mage v1.10.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/rickb777/date v1.13.0
 	github.com/rs/xid v1.2.1 // indirect
-	github.com/sirupsen/logrus v1.7.1
+	github.com/sirupsen/logrus v1.8.1
 	github.com/subchord/go-sse v1.0.1 // indirect
 	github.com/tektoncd/pipeline v0.20.0 // indirect
 	github.com/tinylib/msgp v1.1.5 // indirect
@@ -25,9 +25,8 @@ require (
 	github.com/urfave/negroni/v2 v2.0.2
 	github.com/willf/bitset v1.1.11 // indirect
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/api v0.20.7 // indirect
-	k8s.io/apimachinery v0.20.7
-	k8s.io/cli-runtime v0.20.4
+	k8s.io/apimachinery v0.21.0
+	k8s.io/cli-runtime v0.21.0
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 )
 
