@@ -29,7 +29,7 @@ func (i *JobInformer) Start(ctx context.Context) {
 	informerFactory.Start(ctx.Done())
 }
 
-func (i *JobInformer) OnAdd(obj interface{}) {
+func (i *JobInformer) OnAdd(obj interface{}, _ bool) {
 	job, ok := obj.(*lhv1alpha1.LighthouseJob)
 	if !ok {
 		return

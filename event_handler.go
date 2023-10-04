@@ -105,7 +105,7 @@ func convertWebhookToEvent(webhook scm.Webhook) *Event {
 			Sender:  event.Sender.Login,
 			URL:     event.Comment.Link,
 		}
-		if event.Issue.PullRequest {
+		if event.Issue.PullRequest != nil {
 			e.Branch = fmt.Sprintf("PR-%d", event.Issue.Number)
 		}
 		return &e
