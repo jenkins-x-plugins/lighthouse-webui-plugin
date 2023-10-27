@@ -1,13 +1,13 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  creationTimestamp: null
   name: release
 spec:
   pipelineSpec:
     tasks:
     - name: chart
       resources: {}
+      timeout: 2h
       taskSpec:
         metadata: {}
         stepTemplate:
@@ -20,7 +20,10 @@ spec:
           name: ""
           resources: {}
         - name: next-version
-          resources: {}
+          resources:
+            requests:
+              cpu: 400m
+              memory: 600Mi
         - name: jx-variables
           resources: {}
         - name: release-binary
@@ -38,5 +41,5 @@ spec:
         - name: promote-release
           resources: {}
   serviceAccountName: tekton-bot
-  timeout: 240h0m0s
+  timeout: 2h
 status: {}
