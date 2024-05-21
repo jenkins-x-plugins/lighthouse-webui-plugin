@@ -3,7 +3,8 @@ name: lighthouse-webui-plugin
 description: Web UI for Lighthouse, to visualize events, jobs, and merge status/history.
 icon: https://raw.githubusercontent.com/jenkins-x/jenkins-x-website/master/images/logo/jenkinsx-icon-color.svg
 home: https://github.com/jenkins-x-plugins/lighthouse-webui-plugin
-version: 0.0.1
-appVersion: latest
+version: 0.1.9
+appVersion: 0.1.9
 sources:
-- https://github.com/jenkins-x-plugins/lighthouse-webui-plugin
+  - https://github.com/jenkins-x-plugins/lighthouse-webui-plugin
+  - https://github.com/jenkins-x-plugins/lighthouse-webui-plugin.git
